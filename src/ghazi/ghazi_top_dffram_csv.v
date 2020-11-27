@@ -8,7 +8,7 @@ module ghazi_top_dffram_csv (
 	vssd1,
 	vssd2,
 	wbs_clk_i,
-	wbs_rst_ni,
+	wbs_rst_i,
 	wbs_stb_i,
 	wbs_cyc_i,
 	wbs_we_i,
@@ -33,7 +33,7 @@ module ghazi_top_dffram_csv (
 	inout vssd1;
 	inout vssd2;
 	input wbs_clk_i;
-	input wbs_rst_ni;
+	input wbs_rst_i;
 	input wbs_stb_i;
 	input wbs_cyc_i;
 	input wbs_we_i;
@@ -76,7 +76,7 @@ module ghazi_top_dffram_csv (
 	assign la_data_out[32] = cio_uart_tx_en_d2p;
 	assign la_data_out[33] = ndmreset_req_o;
 	assign clk_i = wbs_clk_i;
-	assign RESET = wbs_rst_ni;
+	assign RESET = ~wbs_rst_i;
 	assign jtag_tck_i = io_in[0];
 	assign jtag_tms_i = io_in[1];
 	assign jtag_trst_ni = io_in[2];
@@ -161,7 +161,7 @@ module ghazi_top_dffram_csv (
 	assign instr_WE = {4 {ram_prog_instr_we}} | ({ram_main_instr_wmask[31:24] != 8'b00000000, ram_main_instr_wmask[23:16] != 8'b00000000, ram_main_instr_wmask[15:8] != 8'b00000000, ram_main_instr_wmask[7:0] != 8'b00000000} & {4 {ram_main_instr_we}});
 	assign instr_EN = ram_main_instr_req | ram_prog_instr_we;
 	always @(posedge clk_i)
-		if (rst_ni)
+		if (!rst_ni)
 			ram_main_instr_rvalid <= 1'b0;
 		else if (ram_main_instr_we || ram_prog_instr_we)
 			ram_main_instr_rvalid <= 1'b0;
