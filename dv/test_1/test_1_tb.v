@@ -5,7 +5,7 @@
 `include "caravel.v"
 `include "spiflash.v"
 
-module ibtida_test_tb;
+module test_1_tb;
 	reg clock;
     	reg RSTB;
 	reg power1, power2;
@@ -28,8 +28,8 @@ module ibtida_test_tb;
 	end
 
 	initial begin
-		$dumpfile("ibtida_test.vcd");
-		$dumpvars(0, ibtida_test_tb);
+		$dumpfile("test_1.vcd");
+		$dumpvars(0, test_1_tb);
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
 		repeat (35) begin
@@ -127,7 +127,7 @@ module ibtida_test_tb;
 	);
 
 	spiflash #(
-		.FILENAME("ibtida_test.hex")
+		.FILENAME("test_1.hex")
 	) spiflash (
 		.csb(flash_csb),
 		.clk(flash_clk),
