@@ -1,0 +1,18 @@
+--- 
+project: 
+  description: "An SoC (System on a Chip) design for Google sponsored Open MPW shuttles for SKY130."
+  foundry: "SkyWater"
+  git_url: "https://github.com/merledu/Ghazi.git"
+  organization: "Micro Electronics Research Laboratory"
+  organization_url: "http://merledupk.org"
+  owner: "Zain Rizwan Khan"
+  process: "SKY130"
+  project_name: "Ghazi"
+  tags: 
+    - "Open MPW"
+    - "Ghazi SoC"
+  category: "Mega Project"
+  top_level_netlist: "src/caravel.v"
+  user_level_netlist: "gl/user_project_wrapper.v"
+  version: "1.00"
+  cover_image: "doc/ghazi_top_tevel.png"
