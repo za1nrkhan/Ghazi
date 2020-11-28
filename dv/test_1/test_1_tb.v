@@ -4,6 +4,7 @@
 
 `include "caravel.v"
 `include "spiflash.v"
+`include "tbprog.v"
 
 module test_1_tb;
 	reg clock;
@@ -90,6 +91,8 @@ module test_1_tb;
 	wire flash_clk;
 	wire flash_io0;
 	wire flash_io1;
+	wire r_Rx_Serial;
+	assign mprj_io[5] = r_Rx_Serial;
 
 
 
@@ -135,6 +138,12 @@ module test_1_tb;
 		.io1(flash_io1),
 		.io2(),			// not used
 		.io3()			// not used
+	);
+
+	tbprog #(
+		.FILENAME("/home/merl/Documents/Zain/Ghazi/src/program.hex")
+	) prog_uut (
+		.r_Rx_Serial (r_Rx_Serial)
 	);
 
 endmodule
