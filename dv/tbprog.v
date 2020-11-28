@@ -1,19 +1,20 @@
-'timescale 1ns / 1ps
+`timescale 1ns / 1ps
 
 module tbprog #(
     parameter FILENAME="program.hex"
 )(
-    output r_Rx_Serial // used by task UART_WRITE_BYTE
+    output reg r_Rx_Serial // used by task UART_WRITE_BYTE
 );
 
+reg r_Clock = 0;
 parameter c_BIT_PERIOD = 8600; // used by task UART_WRITE_BYTE
 parameter c_CLOCK_PERIOD_NS = 100;
 
-logic [31:0] INSTR[(256*64)-1 : 0];
+reg [31:0] INSTR[(256*64)-1 : 0];
 integer      instr_count = 0;
 
 initial begin
-    $readmemh(FILENAME,INSTR)
+    $readmemh(FILENAME,INSTR);
 end
 
 task UART_WRITE_BYTE;
@@ -24,13 +25,13 @@ task UART_WRITE_BYTE;
         r_Rx_Serial <= 1'b0;
         #(c_BIT_PERIOD);
         #1000;
-       
+
         // Send Data Byte
         for (ii=0; ii<8; ii=ii+1) begin
             r_Rx_Serial <= i_Data[ii];
             #(c_BIT_PERIOD);
         end
-       
+
         // Send Stop Bit
         r_Rx_Serial <= 1'b1;
         #(c_BIT_PERIOD);

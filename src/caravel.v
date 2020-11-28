@@ -51,7 +51,12 @@
 /*------------------------------*/
 /* Include user project here	*/
 /*------------------------------*/
-`include "user_proj_example.v"
+// `include "user_proj_example.v"
+`include "ghazi/ghazi_top_dffram_csv.v"
+`include "ghazi/ghazi_top.v"
+`include "ghazi/uart_rx_prog.v"
+`include "ghazi/iccm_controller.v"
+// `include "IbtidaTop.v"
 
 // `ifdef USE_OPENRAM
 //     `include "sram_1rw1r_32_256_8_sky130.v"
@@ -180,8 +185,8 @@ module caravel (
     // irq 	 = mprj_io[7]		(input)
 
     wire [`MPRJ_IO_PADS-1:0] mgmt_io_in;
-    wire jtag_out, sdo_out; 		
-    wire jtag_outenb, sdo_outenb; 
+    wire jtag_out, sdo_out;
+    wire jtag_outenb, sdo_outenb;
 
     wire [`MPRJ_IO_PADS-3:0] mgmt_io_nc1;	/* no-connects */
     wire [`MPRJ_IO_PADS-3:0] mgmt_io_nc3;	/* no-connects */
@@ -297,8 +302,8 @@ module caravel (
     wire [127:0] la_data_in_mprj;  // From CPU to MPRJ
     wire [127:0] la_data_out_mprj; // From CPU to MPRJ
     wire [127:0] la_output_mprj;   // From MPRJ to CPU
-    wire [127:0] la_oen;           // LA output enable from CPU perspective (active-low) 
-	
+    wire [127:0] la_oen;           // LA output enable from CPU perspective (active-low)
+
     // WB MI A (User Project)
     wire mprj_cyc_o_core;
     wire mprj_stb_o_core;
@@ -338,15 +343,15 @@ module caravel (
 	wire	    mprj2_vdd_pwrgood;
 
 	// Storage area
-	// Management R/W interface 
-	wire [`RAM_BLOCKS-1:0] mgmt_ena; 
+	// Management R/W interface
+	wire [`RAM_BLOCKS-1:0] mgmt_ena;
     wire [`RAM_BLOCKS-1:0] mgmt_wen;
     wire [(`RAM_BLOCKS*4)-1:0] mgmt_wen_mask;
     wire [7:0] mgmt_addr;
     wire [31:0] mgmt_wdata;
     wire [(`RAM_BLOCKS*32)-1:0] mgmt_rdata;
 	// Management RO interface
-	wire mgmt_ena_ro; 
+	wire mgmt_ena_ro;
     wire [7:0] mgmt_addr_ro;
     wire [31:0] mgmt_rdata_ro;
 
@@ -385,7 +390,7 @@ module caravel (
         	.core_clk(caravel_clk),
         	.user_clk(caravel_clk2),
         	.core_rstn(caravel_rstn),
-		// Logic Analyzer 
+		// Logic Analyzer
 		.la_input(la_data_out_mprj),
 		.la_output(la_output_core),
 		.la_oen(la_oen),
@@ -415,8 +420,8 @@ module caravel (
 		.mprj_dat_i(mprj_dat_i_core),
 		// mask data
 		.mask_rev(mask_rev),
-		// MGMT area R/W interface 
-    	.mgmt_ena(mgmt_ena), 
+		// MGMT area R/W interface
+    	.mgmt_ena(mgmt_ena),
     	.mgmt_wen_mask(mgmt_wen_mask),
     	.mgmt_wen(mgmt_wen),
     	.mgmt_addr(mgmt_addr),
@@ -472,12 +477,12 @@ module caravel (
 		.user2_vdd_powergood(mprj2_vdd_pwrgood)
 	);
 
-	
+
 	/*----------------------------------------------*/
 	/* Wrapper module around the user project 	*/
 	/*----------------------------------------------*/
 
-	user_project_wrapper mprj ( 
+	user_project_wrapper mprj (
 		.vdda1(vdda1),	// User area 1 3.3V power
 		.vdda2(vdda2),	// User area 2 3.3V power
 		.vssa1(vssa1),	// User area 1 analog ground
@@ -489,7 +494,7 @@ module caravel (
 
     		.wb_clk_i(mprj_clock),
     		.wb_rst_i(mprj_reset),
-		// MGMT SoC Wishbone Slave 
+		// MGMT SoC Wishbone Slave
 		.wbs_cyc_i(mprj_cyc_o_user),
 		.wbs_stb_i(mprj_stb_o_user),
 		.wbs_we_i(mprj_we_o_user),
@@ -654,7 +659,7 @@ module caravel (
         .mgmt_addr(mgmt_addr),
         .mgmt_wdata(mgmt_wdata),
         .mgmt_rdata(mgmt_rdata),
-        // Management RO interface  
+        // Management RO interface
         .mgmt_ena_ro(mgmt_ena_ro),
         .mgmt_addr_ro(mgmt_addr_ro),
         .mgmt_rdata_ro(mgmt_rdata_ro)

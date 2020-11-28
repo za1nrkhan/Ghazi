@@ -1,18 +1,42 @@
-# ---- Test patterns for project striVe ----
+FILE_SIZE_LIMIT_MB = 25
+LARGE_FILES := $(shell find . -type f -size +$(FILE_SIZE_LIMIT_MB)M -not -path "./.git/*")
 
-.SUFFIXES:
-.SILENT: clean all
+LARGE_FILES_GZ := $(addsuffix .gz, $(LARGE_FILES))
 
-PATTERNS = io_ports la_test1 la_test2
+ARCHIVES := $(shell find . -type f -name "*.gz")
+ARCHIVE_SOURCES := $(basename $(ARCHIVES))
 
-all:  ${PATTERNS}
-	for i in ${PATTERNS}; do \
-		( cd $$i && make -f Makefile $${i}.vcd &> verify.log && grep Monitor verify.log) ; \
-	done
+.PHONY: clean
+clean:
+	echo "clean"
 
-clean:  ${PATTERNS}
-	for i in ${PATTERNS}; do \
-		( cd $$i && make clean ) ; \
-	done
 
-.PHONY: clean all
+
+.PHONY: verify
+verify:
+	echo "verify"
+
+
+
+$(LARGE_FILES_GZ): %.gz: %
+	@if [ $(suffix $<) == ".gz" ]; then\
+		echo "Warning: $< is already compressed. Skipping...";\
+	else\
+		gzip $< > /dev/null &&\
+		echo "$< -> $@";\
+	fi
+
+# This target compresses all files larger than 25 MB
+.PHONY: compress
+compress: $(LARGE_FILES_GZ)
+	@echo "Files larger than $(FILE_SIZE_LIMIT_MB) MBytes are compressed!"
+
+
+
+$(ARCHIVE_SOURCES): %: %.gz
+	@gzip -d $< &&\
+	echo "$< -> $@"
+
+.PHONY: uncompress
+uncompress: $(ARCHIVE_SOURCES)
+	@echo "All files are uncompressed!"

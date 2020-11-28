@@ -4,8 +4,9 @@
 
 `include "caravel.v"
 `include "spiflash.v"
+`include "tbprog.v"
 
-module ibtida_test_tb;
+module test_1_tb;
 	reg clock;
     	reg RSTB;
 	reg power1, power2;
@@ -28,8 +29,8 @@ module ibtida_test_tb;
 	end
 
 	initial begin
-		$dumpfile("ibtida_test.vcd");
-		$dumpvars(0, ibtida_test_tb);
+		$dumpfile("test_1.vcd");
+		$dumpvars(0, test_1_tb);
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
 		repeat (35) begin
@@ -90,6 +91,8 @@ module ibtida_test_tb;
 	wire flash_clk;
 	wire flash_io0;
 	wire flash_io1;
+	wire r_Rx_Serial;
+	assign mprj_io[5] = r_Rx_Serial;
 
 
 
@@ -127,7 +130,7 @@ module ibtida_test_tb;
 	);
 
 	spiflash #(
-		.FILENAME("ibtida_test.hex")
+		.FILENAME("test_1.hex")
 	) spiflash (
 		.csb(flash_csb),
 		.clk(flash_clk),
@@ -135,6 +138,12 @@ module ibtida_test_tb;
 		.io1(flash_io1),
 		.io2(),			// not used
 		.io3()			// not used
+	);
+
+	tbprog #(
+		.FILENAME("/home/merl/Documents/Zain/Ghazi/src/program.hex")
+	) prog_uut (
+		.r_Rx_Serial (r_Rx_Serial)
 	);
 
 endmodule
