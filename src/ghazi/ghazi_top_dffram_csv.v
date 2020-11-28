@@ -7,8 +7,8 @@ module ghazi_top_dffram_csv (
 	vccd2,
 	vssd1,
 	vssd2,
-	wbs_clk_i,
-	wbs_rst_i,
+	wb_clk_i,
+	wb_rst_i,
 	wbs_stb_i,
 	wbs_cyc_i,
 	wbs_we_i,
@@ -32,8 +32,8 @@ module ghazi_top_dffram_csv (
 	inout vccd2;
 	inout vssd1;
 	inout vssd2;
-	input wbs_clk_i;
-	input wbs_rst_i;
+	input wb_clk_i;
+	input wb_rst_i;
 	input wbs_stb_i;
 	input wbs_cyc_i;
 	input wbs_we_i;
@@ -49,7 +49,7 @@ module ghazi_top_dffram_csv (
 	output wire [36:0] io_out;
 	output wire [36:0] io_oeb;
 	wire clk_i;
-	wire RESET;
+	wire RESET_n;
 	wire rst_ni;
 	wire rst_lc_ni;
 	wire ndmreset_req_o;
@@ -75,8 +75,8 @@ module ghazi_top_dffram_csv (
 	assign la_data_out[31:0] = cio_gpio_gpio_en_d2p;
 	assign la_data_out[32] = cio_uart_tx_en_d2p;
 	assign la_data_out[33] = ndmreset_req_o;
-	assign clk_i = wbs_clk_i;
-	assign RESET = ~wbs_rst_i;
+	assign clk_i = wb_clk_i;
+	assign RESET_n = ~wb_rst_i;
 	assign jtag_tck_i = io_in[0];
 	assign jtag_tms_i = io_in[1];
 	assign jtag_trst_ni = io_in[2];
@@ -93,7 +93,8 @@ module ghazi_top_dffram_csv (
 	assign io_out[17] = (cio_spi_device_sdo_en_d2p ? cio_spi_device_sdo_d2p : cio_gpio_gpio_d2p[12]);
 	assign io_out[28:18] = cio_gpio_gpio_d2p[23:13];
 	assign io_out[36:29] = cio_gpio_gpio_d2p[31:24];
-	assign io_oeb = {cio_gpio_gpio_en_d2p[31:13], cio_gpio_gpio_en_d2p[12] | cio_spi_device_sdo_en_d2p, cio_gpio_gpio_en_d2p[11:2], cio_gpio_gpio_en_d2p[1] | cio_uart_tx_en_d2p, cio_gpio_gpio_en_d2p[0], 1'b1, 4'b0000};
+	// assign io_oeb = {cio_gpio_gpio_en_d2p[31:13], cio_gpio_gpio_en_d2p[12] | cio_spi_device_sdo_en_d2p, cio_gpio_gpio_en_d2p[11:2], cio_gpio_gpio_en_d2p[1] | cio_uart_tx_en_d2p, cio_gpio_gpio_en_d2p[0], 1'b1, 4'b0000};
+	assign io_oeb = {cio_gpio_gpio_en_d2p[31:13], cio_gpio_gpio_en_d2p[12] | cio_spi_device_sdo_en_d2p, cio_gpio_gpio_en_d2p[11:2], cio_gpio_gpio_en_d2p[1] | cio_uart_tx_en_d2p, 1'b1, 1'b1, 4'b0000};
 	wire ram_main_instr_req;
 	wire ram_main_instr_we;
 	wire [13:0] ram_main_instr_addr;
@@ -196,7 +197,7 @@ module ghazi_top_dffram_csv (
 	wire [7:0] rx_byte_i;
 	iccm_controller u_dut(
 		.clk_i(clk_i),
-		.rst_ni(RESET),
+		.rst_ni(RESET_n),
 		.rx_dv_i(rx_dv_i),
 		.rx_byte_i(rx_byte_i),
 		.we_o(ram_prog_instr_we),
