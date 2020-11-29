@@ -76,7 +76,8 @@ module ghazi_top_dffram_csv (
 	assign la_data_out[32] = cio_uart_tx_en_d2p;
 	assign la_data_out[33] = ndmreset_req_o;
 	assign clk_i = wb_clk_i;
-	assign RESET_n = ~wb_rst_i;
+	assign RESET_n = (~la_oen[0]) ? (~la_data_in[0]) : ~wb_rst_i;
+	// assign RESET_n = ~wb_rst_i;
 	assign jtag_tck_i = io_in[0];
 	assign jtag_tms_i = io_in[1];
 	assign jtag_trst_ni = io_in[2];
