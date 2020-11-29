@@ -8,7 +8,7 @@ module tbprog #(
 );
 
 reg r_Clock = 0;
-parameter c_BIT_PERIOD = 8600; // used by task UART_WRITE_BYTE
+parameter c_BIT_PERIOD = 8681; // used by task UART_WRITE_BYTE
 parameter c_CLOCK_PERIOD_NS = 100;
 
 reg [31:0] INSTR[(256*64)-1 : 0];
