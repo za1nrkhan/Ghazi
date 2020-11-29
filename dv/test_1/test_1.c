@@ -16,9 +16,10 @@ void main()
   reg_mprj_xfer = 1;
   while(reg_mprj_xfer == 1);
 
-  reg_mprj_datah = 0x20;
+  
   reg_la0_ena = 0x00000000;
   reg_la0_data = 0x00000001;
   reg_la0_data = 0x00000000;
+  reg_mprj_datah = 0x20;
 
 }
