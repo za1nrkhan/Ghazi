@@ -63,7 +63,7 @@ always
 initial begin
     r_Rx_Serial <= 1'b1;
     #2000;
-    while (!ready & !test) begin
+    while (!ready && test) begin
       @(posedge r_Clock)
       r_Rx_Serial <= 1'b1;
     end
