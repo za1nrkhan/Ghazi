@@ -144,7 +144,7 @@ module test_1_tb;
 	);
 
 	tbprog #(
-		.FILENAME("/home/merl/Documents/Zain/Ghazi/src/program.hex")
+		.FILENAME("/home/zainrizkhan/Desktop/Ghazi/src/program.hex")
 	) prog_uut (
 		.mprj_ready (mprj_ready),
 		.r_Rx_Serial (r_Rx_Serial)
