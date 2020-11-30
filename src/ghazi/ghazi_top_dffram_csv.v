@@ -158,8 +158,7 @@ module ghazi_top_dffram_csv (
 	wire [13:0] instr_A;
 	wire [13:0] ram_prog_instr_addr;
 	assign instr_A = (rst_ni ? ram_main_instr_addr : ram_prog_instr_addr);
-	wire instr_DI;
-	assign instr_DI = (rst_ni ? ram_main_instr_wdata : ram_prog_instr_wdata);
+	assign instr_Di = (rst_ni ? ram_main_instr_wdata : ram_prog_instr_wdata);
 	assign instr_WE = {4 {ram_prog_instr_we}} | ({ram_main_instr_wmask[31:24] != 8'b00000000, ram_main_instr_wmask[23:16] != 8'b00000000, ram_main_instr_wmask[15:8] != 8'b00000000, ram_main_instr_wmask[7:0] != 8'b00000000} & {4 {ram_main_instr_we}});
 	assign instr_EN = ram_main_instr_req | ram_prog_instr_we;
 	always @(posedge clk_i)
