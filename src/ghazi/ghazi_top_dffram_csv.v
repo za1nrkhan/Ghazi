@@ -70,8 +70,8 @@ module ghazi_top_dffram_csv (
 	wire cio_spi_device_sdo_d2p;
 	wire cio_spi_device_sdo_en_d2p;
 	wire [15:0] CLKS_PER_BIT;
-	assign CLKS_PER_BIT = la_data_in[15:0];
-	assign rst_lc_ni = la_data_in[16];
+	assign CLKS_PER_BIT = la_data_in[47:32];
+	assign rst_lc_ni = la_data_in[64];
 	assign la_data_out[31:0] = cio_gpio_gpio_en_d2p;
 	assign la_data_out[32] = cio_uart_tx_en_d2p;
 	assign la_data_out[33] = ndmreset_req_o;
