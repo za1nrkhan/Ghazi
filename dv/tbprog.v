@@ -3,15 +3,29 @@
 module tbprog #(
     parameter FILENAME="program.hex"
 )(
+    input mprj_ready,
     output reg r_Rx_Serial // used by task UART_WRITE_BYTE
 );
 
 reg r_Clock = 0;
-parameter c_BIT_PERIOD = 8600; // used by task UART_WRITE_BYTE
+parameter c_BIT_PERIOD = 8681; // used by task UART_WRITE_BYTE
 parameter c_CLOCK_PERIOD_NS = 100;
 
 reg [31:0] INSTR[(256*64)-1 : 0];
-integer      instr_count = 0;
+integer instr_count = 0;
+reg ready;
+reg test;
+wire test2;
+
+assign test2 = !test & !ready;
+
+always @ ( posedge r_Clock ) begin
+  if (mprj_ready) begin
+    ready <= 1'b1;
+  end else begin
+    ready <= 1'b0;
+  end
+end
 
 initial begin
     $readmemh(FILENAME,INSTR);
@@ -38,11 +52,21 @@ task UART_WRITE_BYTE;
      end
 endtask // UART_WRITE_BYTE
 
+initial begin
+        test = 1'b0;
+  #1000 test = 1'b1;
+end
+
 always
     #(c_CLOCK_PERIOD_NS/2) r_Clock <= !r_Clock;
 
 initial begin
     r_Rx_Serial <= 1'b1;
+    #2000;
+    while (!ready && test) begin
+      @(posedge r_Clock)
+      r_Rx_Serial <= 1'b1;
+    end
     while (instr_count<255) begin
         @(posedge r_Clock);
         UART_WRITE_BYTE(INSTR[instr_count][31:24]);

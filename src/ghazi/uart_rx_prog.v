@@ -10,6 +10,7 @@
   
 module uart_rx_prog (
    input         i_Clock,
+   input         rst_ni,
    input         i_Rx_Serial,
    input  [15:0] CLKS_PER_BIT,
    output        o_Rx_DV,
@@ -25,7 +26,7 @@ module uart_rx_prog (
   reg           r_Rx_Data_R = 1'b1;
   reg           r_Rx_Data   = 1'b1;
    
-  reg [7:0]     r_Clock_Count = 0;
+  reg [15:0]     r_Clock_Count = 0;
   reg [2:0]     r_Bit_Index   = 0; //8 bits total
   reg [7:0]     r_Rx_Byte     = 0;
   reg           r_Rx_DV       = 0;
@@ -44,7 +45,9 @@ module uart_rx_prog (
   // Purpose: Control RX state machine
   always @(posedge i_Clock)
     begin
-       
+      if (!rst_ni) begin
+        r_SM_Main <= s_IDLE;
+      end else begin       
       case (r_SM_Main)
         s_IDLE :
           begin
@@ -137,6 +140,7 @@ module uart_rx_prog (
           r_SM_Main <= s_IDLE;
          
       endcase
+      end
     end   
    
   assign o_Rx_DV   = r_Rx_DV;

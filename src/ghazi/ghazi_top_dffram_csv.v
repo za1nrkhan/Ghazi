@@ -70,13 +70,14 @@ module ghazi_top_dffram_csv (
 	wire cio_spi_device_sdo_d2p;
 	wire cio_spi_device_sdo_en_d2p;
 	wire [15:0] CLKS_PER_BIT;
-	assign CLKS_PER_BIT = la_data_in[15:0];
-	assign rst_lc_ni = la_data_in[16];
+	assign CLKS_PER_BIT = la_data_in[47:32];
+	assign rst_lc_ni = la_data_in[64];
 	assign la_data_out[31:0] = cio_gpio_gpio_en_d2p;
 	assign la_data_out[32] = cio_uart_tx_en_d2p;
 	assign la_data_out[33] = ndmreset_req_o;
 	assign clk_i = wb_clk_i;
-	assign RESET_n = ~wb_rst_i;
+	assign RESET_n = (~la_oen[0]) ? (~la_data_in[0]) : ~wb_rst_i;
+	// assign RESET_n = ~wb_rst_i;
 	assign jtag_tck_i = io_in[0];
 	assign jtag_tms_i = io_in[1];
 	assign jtag_trst_ni = io_in[2];
@@ -157,8 +158,7 @@ module ghazi_top_dffram_csv (
 	wire [13:0] instr_A;
 	wire [13:0] ram_prog_instr_addr;
 	assign instr_A = (rst_ni ? ram_main_instr_addr : ram_prog_instr_addr);
-	wire instr_DI;
-	assign instr_DI = (rst_ni ? ram_main_instr_wdata : ram_prog_instr_wdata);
+	assign instr_Di = (rst_ni ? ram_main_instr_wdata : ram_prog_instr_wdata);
 	assign instr_WE = {4 {ram_prog_instr_we}} | ({ram_main_instr_wmask[31:24] != 8'b00000000, ram_main_instr_wmask[23:16] != 8'b00000000, ram_main_instr_wmask[15:8] != 8'b00000000, ram_main_instr_wmask[7:0] != 8'b00000000} & {4 {ram_main_instr_we}});
 	assign instr_EN = ram_main_instr_req | ram_prog_instr_we;
 	always @(posedge clk_i)
@@ -207,8 +207,9 @@ module ghazi_top_dffram_csv (
 	);
 	uart_rx_prog u_uart_rx(
 		.i_Clock(clk_i),
+		.rst_ni(RESET_n),
 		.i_Rx_Serial(cio_uart_rx_p2d),
-		.CLKS_PER_BIT(CLKS_PER_BIT),
+		.CLKS_PER_BIT(16'h015C),
 		.o_Rx_DV(rx_dv_i),
 		.o_Rx_Byte(rx_byte_i)
 	);
