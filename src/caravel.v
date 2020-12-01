@@ -56,7 +56,6 @@
 `include "ghazi/ghazi_top.v"
 `include "ghazi/uart_rx_prog.v"
 `include "ghazi/iccm_controller.v"
-// `include "IbtidaTop.v"
 
 // `ifdef USE_OPENRAM
 //     `include "sram_1rw1r_32_256_8_sky130.v"
