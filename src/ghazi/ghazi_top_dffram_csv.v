@@ -169,6 +169,10 @@ module ghazi_top_dffram_csv (
 		else
 			ram_main_instr_rvalid <= ram_main_instr_req;
 	DFFRAM #(1) SRAMI(
+	`ifdef USE_POWER_PINS
+	        .VPWR(vccd1),
+	        .VGND(vssa1),
+    	`endif
 		.CLK(clk_i),
 		.WE(instr_WE),
 		.EN(instr_EN),
@@ -186,6 +190,10 @@ module ghazi_top_dffram_csv (
 		else
 			ram_main_data_rvalid <= ram_main_data_req;
 	DFFRAM #(1) SRAMD(
+	`ifdef USE_POWER_PINS
+	        .VPWR(vccd1),
+	        .VGND(vssa1),
+    	`endif
 		.CLK(clk_i),
 		.WE(data_WE),
 		.EN(ram_main_data_req),
