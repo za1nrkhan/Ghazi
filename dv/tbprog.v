@@ -15,9 +15,6 @@ reg [31:0] INSTR[(256*64)-1 : 0];
 integer instr_count = 0;
 reg ready;
 reg test;
-wire test2;
-
-assign test2 = !test & !ready;
 
 always @ ( posedge r_Clock ) begin
   if (mprj_ready) begin
@@ -67,7 +64,7 @@ initial begin
       @(posedge r_Clock)
       r_Rx_Serial <= 1'b1;
     end
-    while (instr_count<255) begin
+    while (instr_count<255 && INSTR[instr_count]!=32'h00000FFF) begin
         @(posedge r_Clock);
         UART_WRITE_BYTE(INSTR[instr_count][31:24]);
         @(posedge r_Clock);
