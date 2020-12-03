@@ -45,9 +45,9 @@ module ghazi_top_dffram_csv (
 	input [127:0] la_data_in;
 	output wire [127:0] la_data_out;
 	input [127:0] la_oen;
-	input [36:0] io_in;
-	output wire [36:0] io_out;
-	output wire [36:0] io_oeb;
+	input [37:0] io_in;
+	output wire [37:0] io_out;
+	output wire [37:0] io_oeb;
 	wire clk_i;
 	wire RESET_n;
 	wire rst_ni;
@@ -95,7 +95,7 @@ module ghazi_top_dffram_csv (
 	assign io_out[28:18] = cio_gpio_gpio_d2p[23:13];
 	assign io_out[36:29] = cio_gpio_gpio_d2p[31:24];
 	// assign io_oeb = {cio_gpio_gpio_en_d2p[31:13], cio_gpio_gpio_en_d2p[12] | cio_spi_device_sdo_en_d2p, cio_gpio_gpio_en_d2p[11:2], cio_gpio_gpio_en_d2p[1] | cio_uart_tx_en_d2p, cio_gpio_gpio_en_d2p[0], 1'b1, 4'b0000};
-	assign io_oeb = {cio_gpio_gpio_en_d2p[31:13], cio_gpio_gpio_en_d2p[12] | cio_spi_device_sdo_en_d2p, cio_gpio_gpio_en_d2p[11:2], cio_gpio_gpio_en_d2p[1] | cio_uart_tx_en_d2p, 1'b1, 1'b1, 4'b0000};
+	assign io_oeb[36:0] = {cio_gpio_gpio_en_d2p[31:13], cio_gpio_gpio_en_d2p[12] | cio_spi_device_sdo_en_d2p, cio_gpio_gpio_en_d2p[11:2], cio_gpio_gpio_en_d2p[1] | cio_uart_tx_en_d2p, 1'b1, 1'b1, 4'b0000};
 	wire ram_main_instr_req;
 	wire ram_main_instr_we;
 	wire [13:0] ram_main_instr_addr;
