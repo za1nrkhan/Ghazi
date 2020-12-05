@@ -48,7 +48,6 @@ module ghazi_top_dffram_csv (
 	input [37:0] io_in;
 	output wire [37:0] io_out;
 	output wire [37:0] io_oeb;
-	wire clk_i;
 	wire RESET_n;
 	wire rst_ni;
 	wire rst_lc_ni;
@@ -75,7 +74,6 @@ module ghazi_top_dffram_csv (
 	assign la_data_out[31:0] = cio_gpio_gpio_en_d2p;
 	assign la_data_out[32] = cio_uart_tx_en_d2p;
 	assign la_data_out[33] = ndmreset_req_o;
-	assign clk_i = wb_clk_i;
 	assign RESET_n = (~la_oen[0]) ? (~la_data_in[0]) : ~wb_rst_i;
 	// assign RESET_n = ~wb_rst_i;
 	assign jtag_tck_i = io_in[0];
@@ -94,8 +92,7 @@ module ghazi_top_dffram_csv (
 	assign io_out[17] = (cio_spi_device_sdo_en_d2p ? cio_spi_device_sdo_d2p : cio_gpio_gpio_d2p[12]);
 	assign io_out[28:18] = cio_gpio_gpio_d2p[23:13];
 	assign io_out[36:29] = cio_gpio_gpio_d2p[31:24];
-	// assign io_oeb = {cio_gpio_gpio_en_d2p[31:13], cio_gpio_gpio_en_d2p[12] | cio_spi_device_sdo_en_d2p, cio_gpio_gpio_en_d2p[11:2], cio_gpio_gpio_en_d2p[1] | cio_uart_tx_en_d2p, cio_gpio_gpio_en_d2p[0], 1'b1, 4'b0000};
-	assign io_oeb[36:0] = {~cio_gpio_gpio_en_d2p[31:2], ~cio_gpio_gpio_en_d2p[1] | ~cio_uart_tx_en_d2p, 1'b1, 1'b0, 4'b1111};
+	assign io_oeb[36:0] = {~cio_gpio_gpio_en_d2p[31:2], ~cio_gpio_gpio_en_d2p[1] | ~cio_uart_tx_en_d2p, ~cio_gpio_gpio_en_d2p[0], 1'b0, 4'b1111};
 	wire ram_main_instr_req;
 	wire ram_main_instr_we;
 	wire [13:0] ram_main_instr_addr;
@@ -113,7 +110,7 @@ module ghazi_top_dffram_csv (
 	reg ram_main_data_rvalid;
 	wire [1:0] ram_main_data_rerror;
 	ghazi_top ghazi_top(
-		.clk_i(clk_i),
+		.clk_i(wb_clk_i),
 		.rst_lc_ni(rst_lc_ni),
 		.rst_ni(rst_ni),
 		.ram_main_instr_req(ram_main_instr_req),
@@ -161,7 +158,7 @@ module ghazi_top_dffram_csv (
 	assign instr_Di = (rst_ni ? ram_main_instr_wdata : ram_prog_instr_wdata);
 	assign instr_WE = {4 {ram_prog_instr_we}} | ({ram_main_instr_wmask[31:24] != 8'b00000000, ram_main_instr_wmask[23:16] != 8'b00000000, ram_main_instr_wmask[15:8] != 8'b00000000, ram_main_instr_wmask[7:0] != 8'b00000000} & {4 {ram_main_instr_we}});
 	assign instr_EN = ram_main_instr_req | ram_prog_instr_we;
-	always @(posedge clk_i)
+	always @(posedge wb_clk_i)
 		if (!rst_ni)
 			ram_main_instr_rvalid <= 1'b0;
 		else if (ram_main_instr_we || ram_prog_instr_we)
@@ -173,7 +170,7 @@ module ghazi_top_dffram_csv (
 	        .VPWR(vccd1),
 	        .VGND(vssa1),
     	`endif
-		.CLK(clk_i),
+		.CLK(wb_clk_i),
 		.WE(instr_WE),
 		.EN(instr_EN),
 		.Di(instr_Di),
@@ -182,7 +179,7 @@ module ghazi_top_dffram_csv (
 	);
 	wire [3:0] data_WE;
 	assign data_WE = {ram_main_data_wmask[31:24] != 8'b00000000, ram_main_data_wmask[23:16] != 8'b00000000, ram_main_data_wmask[15:8] != 8'b00000000, ram_main_data_wmask[7:0] != 8'b00000000} & {4 {ram_main_data_we}};
-	always @(posedge clk_i)
+	always @(posedge wb_clk_i)
 		if (!rst_ni)
 			ram_main_data_rvalid <= 1'b0;
 		else if (ram_main_data_we)
@@ -194,7 +191,7 @@ module ghazi_top_dffram_csv (
 	        .VPWR(vccd1),
 	        .VGND(vssa1),
     	`endif
-		.CLK(clk_i),
+		.CLK(wb_clk_i),
 		.WE(data_WE),
 		.EN(ram_main_data_req),
 		.Di(ram_main_data_wdata),
@@ -204,7 +201,7 @@ module ghazi_top_dffram_csv (
 	wire rx_dv_i;
 	wire [7:0] rx_byte_i;
 	iccm_controller u_dut(
-		.clk_i(clk_i),
+		.clk_i(wb_clk_i),
 		.rst_ni(RESET_n),
 		.rx_dv_i(rx_dv_i),
 		.rx_byte_i(rx_byte_i),
@@ -214,7 +211,7 @@ module ghazi_top_dffram_csv (
 		.reset_o(rst_ni)
 	);
 	uart_rx_prog u_uart_rx(
-		.i_Clock(clk_i),
+		.i_Clock(wb_clk_i),
 		.rst_ni(RESET_n),
 		.i_Rx_Serial(cio_uart_rx_p2d),
 		.CLKS_PER_BIT(CLKS_PER_BIT),
