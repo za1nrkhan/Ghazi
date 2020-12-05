@@ -51,7 +51,8 @@ module test_1_tb;
 	    // Observe Output pins [28:21]
 	    wait(mprj_ready == 1'b1);
 	    wait(mprj_io_0 == 8'hB3);
-	    wait(mprj_io_0 == 8'h09);
+	    wait(mprj_io_0 == 8'hBz);
+		wait(mprj_io_0 == 8'h8z);
 	   // wait(mprj_io_0 == 8'h06);
 	    // wait(mprj_io_0 == 8'h03);
     	//     wait(mprj_io_0 == 8'h04);
