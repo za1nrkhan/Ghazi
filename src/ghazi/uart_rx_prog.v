@@ -64,7 +64,7 @@ module uart_rx_prog (
         // Check middle of start bit to make sure it's still low
         s_RX_START_BIT :
           begin
-            if (r_Clock_Count == ((CLKS_PER_BIT-1)>>2))
+            if (r_Clock_Count == ((CLKS_PER_BIT-1)>>1))
               begin
                 if (r_Rx_Data == 1'b0)
                   begin
