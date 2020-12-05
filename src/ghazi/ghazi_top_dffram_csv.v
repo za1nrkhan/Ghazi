@@ -217,7 +217,7 @@ module ghazi_top_dffram_csv (
 		.i_Clock(clk_i),
 		.rst_ni(RESET_n),
 		.i_Rx_Serial(cio_uart_rx_p2d),
-		.CLKS_PER_BIT(16'h015C),
+		.CLKS_PER_BIT(CLKS_PER_BIT),
 		.o_Rx_DV(rx_dv_i),
 		.o_Rx_Byte(rx_byte_i)
 	);

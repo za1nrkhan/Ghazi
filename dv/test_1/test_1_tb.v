@@ -15,11 +15,12 @@ module test_1_tb;
 	wire gpio;
   wire [37:0] mprj_io;
 
-	// wire [7:0] mprj_io_0;
+	wire [7:0] mprj_io_0;
 	wire mprj_ready;
 
-	// assign mprj_io_0 = mprj_io[7:0];
+	assign mprj_io_0 = mprj_io[28:21];
 	assign mprj_ready = mprj_io[37];
+
 
 	// External clock is used by default.  Make this artificially fast for the
 	// simulation.  Normally this would be a slow clock and the digital PLL
@@ -36,7 +37,7 @@ module test_1_tb;
 		$dumpvars(0, test_1_tb);
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
-		repeat (35) begin
+		repeat (300) begin
 			repeat (1000) @(posedge clock);
 			// $display("+1000 cycles");
 		end
@@ -47,8 +48,10 @@ module test_1_tb;
 	end
 
 	initial begin
-	    // Observe Output pins [7:0]
+	    // Observe Output pins [28:21]
 	    wait(mprj_ready == 1'b1);
+	    wait(mprj_io_0 == 8'hB3);
+	    wait(mprj_io_0 == 8'h09);
 	   // wait(mprj_io_0 == 8'h06);
 	    // wait(mprj_io_0 == 8'h03);
     	//     wait(mprj_io_0 == 8'h04);
@@ -62,7 +65,7 @@ module test_1_tb;
 	    // wait(mprj_io_0 == 8'h00);
 
 	    $display("Monitor: Test 1 Mega-Project IO (RTL) Passed");
-	    //$finish;
+	    $finish;
 	end
 
 	initial begin
@@ -87,7 +90,7 @@ module test_1_tb;
 	end
 
 	always @(mprj_io) begin
-		#1 $display("MPRJ-IO state = %b ", mprj_io[7:0]);
+		#1 $display("MPRJ-IO state = 0x%0h ", mprj_io_0);
 	end
 
     	wire flash_csb;
