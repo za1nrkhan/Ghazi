@@ -23,18 +23,20 @@
 
 `include "libs.ref/sky130_fd_io/verilog/sky130_fd_io.v"
 `include "libs.ref/sky130_fd_io/verilog/sky130_ef_io.v"
+`include "libs.ref/sky130_fd_io/verilog/sky130_ef_io__gpiov2_pad_wrapped.v"
 
 `include "libs.ref/sky130_fd_sc_hd/verilog/primitives.v"
 `include "libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v"
 `include "libs.ref/sky130_fd_sc_hvl/verilog/primitives.v"
 `include "libs.ref/sky130_fd_sc_hvl/verilog/sky130_fd_sc_hvl.v"
 
-`include "mgmt_soc.v"
-`include "housekeeping_spi.v"
+	`include "mgmt_soc.v"
+	`include "housekeeping_spi.v"
+	`include "caravel_clocking.v"
+	`include "mgmt_core.v"
 `include "digital_pll.v"
-`include "caravel_clocking.v"
-`include "mgmt_core.v"
 `include "mgmt_protect.v"
+`include "mgmt_protect_hv.v"
 `include "mprj_io.v"
 `include "chip_io.v"
 `include "user_id_programming.v"
@@ -47,15 +49,17 @@
 `include "DFFRAMBB.v"
 `include "sram_1rw1r_32_256_8_sky130.v"
 `include "storage.v"
+`include "sky130_fd_sc_hvl__lsbufhv2lv_1_wrapped.v"
 
 /*------------------------------*/
 /* Include user project here	*/
 /*------------------------------*/
 // `include "user_proj_example.v"
-`include "ghazi/ghazi_top_dffram_csv.v"
-`include "ghazi/ghazi_top.v"
-`include "ghazi/uart_rx_prog.v"
-`include "ghazi/iccm_controller.v"
+//`include "ghazi/ghazi_top_dffram_csv_synthesis.v"
+ `include "ghazi/ghazi_top_dffram_csv.v"
+ `include "ghazi/ghazi_top.v"
+ `include "ghazi/uart_rx_prog.v"
+ `include "ghazi/iccm_controller.v"
 
 // `ifdef USE_OPENRAM
 //     `include "sram_1rw1r_32_256_8_sky130.v"
@@ -297,11 +301,12 @@ module caravel (
     wire [7:0] spi_ro_config_core;
 
     // LA signals
-    wire [127:0] la_output_core;   // From CPU to MPRJ
-    wire [127:0] la_data_in_mprj;  // From CPU to MPRJ
+    wire [127:0] la_data_in_user;  // From CPU to MPRJ
+    wire [127:0] la_data_in_mprj;  // From MPRJ to CPU
     wire [127:0] la_data_out_mprj; // From CPU to MPRJ
-    wire [127:0] la_output_mprj;   // From MPRJ to CPU
-    wire [127:0] la_oen;           // LA output enable from CPU perspective (active-low)
+    wire [127:0] la_data_out_user; // From MPRJ to CPU
+    wire [127:0] la_oen_user;      // From CPU to MPRJ
+    wire [127:0] la_oen_mprj;	   // From CPU to MPRJ
 
     // WB MI A (User Project)
     wire mprj_cyc_o_core;
@@ -356,8 +361,8 @@ module caravel (
 
     mgmt_core soc (
 	`ifdef USE_POWER_PINS
-		.vdd1v8(vccd),
-		.vss(vssa),
+		.VPWR(vccd),
+		.VGND(vssa),
 	`endif
 		// GPIO (1 pin)
 		.gpio_out_pad(gpio_out_core),
@@ -390,9 +395,9 @@ module caravel (
         	.user_clk(caravel_clk2),
         	.core_rstn(caravel_rstn),
 		// Logic Analyzer
-		.la_input(la_data_out_mprj),
-		.la_output(la_output_core),
-		.la_oen(la_oen),
+		.la_input(la_data_in_mprj),
+		.la_output(la_data_out_mprj),
+		.la_oen(la_oen_mprj),
 		// User Project IO Control
 		.mprj_vcc_pwrgood(mprj_vcc_pwrgood),
 		.mprj2_vcc_pwrgood(mprj2_vcc_pwrgood),
@@ -438,6 +443,7 @@ module caravel (
 	/* the vccd1 domain.						*/
 
 	mgmt_protect mgmt_buffers (
+	`ifdef USE_POWER_PINS
 		.vccd(vccd),
 		.vssd(vssd),
 		.vccd1(vccd1),
@@ -446,6 +452,7 @@ module caravel (
 		.vssa1(vssa1),
 		.vdda2(vdda2),
 		.vssa2(vssa2),
+        `endif
 
 		.caravel_clk(caravel_clk),
 		.caravel_clk2(caravel_clk2),
@@ -456,8 +463,12 @@ module caravel (
 		.mprj_sel_o_core(mprj_sel_o_core),
 		.mprj_adr_o_core(mprj_adr_o_core),
 		.mprj_dat_o_core(mprj_dat_o_core),
-		.la_output_core(la_output_core),
-		.la_oen(la_oen),
+		.la_data_out_core(la_data_out_user),
+		.la_data_out_mprj(la_data_out_mprj),
+		.la_data_in_core(la_data_in_user),
+		.la_data_in_mprj(la_data_in_mprj),
+		.la_oen_mprj(la_oen_mprj),
+		.la_oen_core(la_oen_user),
 
 		.user_clock(mprj_clock),
 		.user_clock2(mprj_clock2),
@@ -469,7 +480,6 @@ module caravel (
 		.mprj_sel_o_user(mprj_sel_o_user),
 		.mprj_adr_o_user(mprj_adr_o_user),
 		.mprj_dat_o_user(mprj_dat_o_user),
-		.la_data_in_mprj(la_data_in_mprj),
 		.user1_vcc_powergood(mprj_vcc_pwrgood),
 		.user2_vcc_powergood(mprj2_vcc_pwrgood),
 		.user1_vdd_powergood(mprj_vdd_pwrgood),
@@ -481,7 +491,8 @@ module caravel (
 	/* Wrapper module around the user project 	*/
 	/*----------------------------------------------*/
 
-	user_project_wrapper mprj (
+	user_project_wrapper mprj ( 
+	`ifdef USE_POWER_PINS
 		.vdda1(vdda1),	// User area 1 3.3V power
 		.vdda2(vdda2),	// User area 2 3.3V power
 		.vssa1(vssa1),	// User area 1 analog ground
@@ -490,6 +501,7 @@ module caravel (
 		.vccd2(vccd2),	// User area 2 1.8V power
 		.vssd1(vssd1),	// User area 1 digital ground
 		.vssd2(vssd2),	// User area 2 digital ground
+        `endif
 
     		.wb_clk_i(mprj_clock),
     		.wb_rst_i(mprj_reset),
@@ -503,9 +515,9 @@ module caravel (
 	    	.wbs_ack_o(mprj_ack_i_core),
 		.wbs_dat_o(mprj_dat_i_core),
 		// Logic Analyzer
-		.la_data_in(la_data_in_mprj),
-		.la_data_out(la_data_out_mprj),
-		.la_oen (la_oen),
+		.la_data_in(la_data_in_user),
+		.la_data_out(la_data_out_user),
+		.la_oen(la_oen_user),
 		// IO Pads
 		.io_in (user_io_in),
     		.io_out(user_io_out),
@@ -534,8 +546,8 @@ module caravel (
     // SDO).  The rest are configured to be default (input).
 
     gpio_control_block #(
-	.DM_INIT(3'b110),	// Mode = output, strong up/down
-	.OENB_INIT(1'b1)	// Enable output signaling from wire
+	.DM_INIT(`DM_INIT),	// Mode = output, strong up/down
+	.OENB_INIT(`OENB_INIT)	// Enable output signaling from wire
     ) gpio_control_bidir [1:0] (
     	`ifdef USE_POWER_PINS
 			.vccd(vccd),
@@ -621,23 +633,27 @@ module caravel (
     user_id_programming #(
 	.USER_PROJECT_ID(USER_PROJECT_ID)
     ) user_id_value (
+`ifdef USE_POWER_PINS
 	.vdd1v8(vccd),
 	.vss(vssd),
+`endif
 	.mask_rev(mask_rev)
     );
 
     // Power-on-reset circuit
     simple_por por (
+`ifdef USE_POWER_PINS
 		.vdd3v3(vddio),
 		.vdd1v8(vccd),
 		.vss(vssio),
+`endif
 		.porb_h(porb_h),
 		.porb_l(porb_l),
 		.por_l(por_l)
     );
 
     // XRES (chip input pin reset) reset level converter
-    sky130_fd_sc_hvl__lsbufhv2lv_1 rstb_level (
+    sky130_fd_sc_hvl__lsbufhv2lv_1_wrapped rstb_level (
 `ifdef USE_POWER_PINS
 		.VPWR(vddio),
 		.VPB(vddio),

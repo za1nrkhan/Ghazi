@@ -15,10 +15,10 @@ module test_1_tb;
 	wire gpio;
   wire [37:0] mprj_io;
 
-	wire [7:0] mprj_io_0;
+	wire [6:0] mprj_io_0;
 	wire mprj_ready;
 
-	assign mprj_io_0 = mprj_io[28:21];
+	assign mprj_io_0 = mprj_io[12:6];
 	assign mprj_ready = mprj_io[37];
 
 
@@ -48,22 +48,15 @@ module test_1_tb;
 	end
 
 	initial begin
-	    // Observe Output pins [28:21]
+	    // Observe Output pins [12:6]
 	    wait(mprj_ready == 1'b1);
-	    wait(mprj_io_0 == 8'hB3);
-	    wait(mprj_io_0 == 8'hBz);
-		wait(mprj_io_0 == 8'h8z);
-	   // wait(mprj_io_0 == 8'h06);
-	    // wait(mprj_io_0 == 8'h03);
-    	//     wait(mprj_io_0 == 8'h04);
-	    // wait(mprj_io_0 == 8'h05);
-      //       wait(mprj_io_0 == 8'h06);
-	    // wait(mprj_io_0 == 8'h07);
-      //       wait(mprj_io_0 == 8'h08);
-	    // wait(mprj_io_0 == 8'h09);
-      //       wait(mprj_io_0 == 8'h0A);
-	    // wait(mprj_io_0 == 8'hFF);
-	    // wait(mprj_io_0 == 8'h00);
+	    wait(mprj_io_0 == 7'h01);
+	    wait(mprj_io_0 == 7'h03);
+    	wait(mprj_io_0 == 7'h05);
+	    wait(mprj_io_0 == 7'h07);
+        wait(mprj_io_0 == 7'h13);
+	    wait(mprj_io_0 == 7'h55);
+	    wait(mprj_io_0 == 7'h7F);
 
 	    $display("Monitor: Test 1 Mega-Project IO (RTL) Passed");
 	    $finish;
